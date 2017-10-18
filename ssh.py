@@ -6,6 +6,14 @@ and password="{2}". Exception message:"{3}".\
 """ 
 
 class ExecResult:
+    """ Represents the result of a command execution on the VM
+
+    Attributes:
+        success(bool) : true if the command was executed, false otherwise
+        error(string) : a string representation of an exception (if it occurred)
+        stdout(string): the contents of stdout stream
+        stderr(string): the contents of stderr stream
+    """
     def __init__(self, success, error=None, stdout=None, stderr=None):
         self.success = success
         self.error = error
