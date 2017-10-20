@@ -5,6 +5,10 @@ An exception occured when connecting to "localhost:{0}" with username="{1}"
 and password="{2}". Exception message:"{3}".\
 """ 
 
+# wraps a command to execute with sudo
+def sudo_cmd(cmd):
+    return "sudo -S -p '' " + cmd
+
 class ExecResult:
     """ Represents the result of a command execution on the VM
 
@@ -44,11 +48,15 @@ class SSHClient:
         return self.client is not None
 
     def exec_command(self, cmd, timeout=1):
+        sudo = "sudo" in cmd
         if not self.connection_is_set():
             return ExecResult(False, error="Connection is not set")
         try:
             stdin, stdout, stderr = self.client.exec_command(cmd, 
                     timeout=timeout)
+            if sudo:
+                stdin.write(self.password + "\n")
+                stdin.flush()
         except Exception as e:
             return ExecResult(False, error=str(e))
         return ExecResult(True, stdout=stdout.read(), stderr=stderr.read())

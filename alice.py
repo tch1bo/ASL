@@ -8,10 +8,6 @@ ALICE_TESTS = [
             "Hello world test",
             "echo -n 'Hello World!'",
         ),
-        VMTest(
-            "Failing test",
-            ">&2 echo -n 'error'",
-        )
 ]
 
 class Alice(VM):
