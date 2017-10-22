@@ -1,4 +1,5 @@
 import paramiko
+import socket
 
 INIT_ERR_MSG = """\
 An exception occured when connecting to "localhost:{0}" with username="{1}"
@@ -47,7 +48,7 @@ class SSHClient:
     def connection_is_set(self):
         return self.client is not None
 
-    def exec_command(self, cmd, timeout=1):
+    def exec_command(self, cmd, timeout):
         sudo = "sudo" in cmd
         if not self.connection_is_set():
             return ExecResult(False, error="Connection is not set")
@@ -57,9 +58,11 @@ class SSHClient:
             if sudo:
                 stdin.write(self.password + "\n")
                 stdin.flush()
+            return ExecResult(True, stdout=stdout.read(), stderr=stderr.read())
         except Exception as e:
             return ExecResult(False, error=str(e))
-        return ExecResult(True, stdout=stdout.read(), stderr=stderr.read())
+
+
 
     def close(self):
         if self.connection_is_set():

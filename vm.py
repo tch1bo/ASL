@@ -1,8 +1,23 @@
 from color import color_red, color_green
 from ssh import SSHClient
 
+""" The default predicate used for testing."""
 def default_test_predicate(out, err):
     return (len(err) == 0)
+
+""" Factory that build predicates that check that err stream contains all 
+strings in given list."""
+def stderr_predicate_factory(*strings):
+    def inner(out, err):
+        return reduce(lambda a, b: a and (b in err), strings, True)
+    return inner
+
+""" Factory that build predicates that check that out stream contains all 
+strings in given list."""
+def stdout_predicate_factory(*strings):
+    def inner(out, err):
+        return reduce(lambda a, b: a and (b in out), strings, True)
+    return inner
 
 class VMTest:
     """ Represents a test case to run on the VM.
@@ -12,10 +27,12 @@ class VMTest:
         cmd(string) : a command to run on the VM
         predicate(func(stdout, stderr)->bool): a function, which returns
             true if test succeeded and false otherwise
+        timeout(int): the command's timeout in seconds (default: 1)
     """
-    def __init__(self, name, cmd, predicate=None):
+    def __init__(self, name, cmd, timeout=1, predicate=None):
         self.name = name
         self.cmd = cmd
+        self.timeout = timeout
         if predicate is None:
             self.predicate = default_test_predicate
         else:
@@ -47,7 +64,7 @@ class VM:
     def run_tests(self):
         print "Running tests for VM: {0}".format(self.name)
         for t in self.tests:
-            res = self.client.exec_command(t.cmd)
+            res = self.client.exec_command(t.cmd, t.timeout)
             print t.format_result(res)
         print "-"*80
 
