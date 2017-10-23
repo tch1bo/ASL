@@ -62,20 +62,47 @@ class VMTestPackageInstalled(VMTest):
     """
 
     def __init__(self, package):
-        name = package + "installed"
-        cmd = package
+        self.package = package
+        name = package + " installed"
         predicate = lambda o,e: "command not found" not in e
-        VMTest.__init__(self, name, cmd, predicate=predicate)
+        VMTest.__init__(self, name, cmd=package, predicate=predicate)
+
+
+    def format_result(self, res):
+        if self.is_success(res):
+            output = "[ {0} ] {1}".format(color_green('PASSED'), self.name)
+        else:
+            output = "[ {0} ] {1} not installed".format(
+                    color_red("FAILED"), self.package)
+        return output
 
 class VM:
-    def __init__(self, name, port, username, password, tests):
+    """ Represents a VM. Keeps the credentials and tests data.
+
+    Attributes:
+       name(string): name of the VM (e.g. "alice")
+       port(int): port on localhost which ssh is set up to
+       username(string): username used for ssh
+       password(string): password used for ssh
+       installation_tests(list of VMTest): tests that check if proper packages
+            are installed on the VM
+       online_tests(list of VMTest): tests that emulate one of the exercises of
+            the book
+       manual_tests(list of strings): tests that are not performed, but just
+            used as a reminder for the user
+    """
+
+    def __init__(self, name, port, username, password):
         self.client = SSHClient(port, username, password)
-        self.tests = tests
         self.name = name
 
     def run_tests(self):
-        print "Running tests for VM: {0}".format(self.name)
-        for t in self.tests:
+        print "Running installation tests for VM: {0}".format(self.name)
+        for t in self.installation_tests:
+            res = self.client.exec_command(t.cmd, t.timeout)
+            print t.format_result(res)
+        print "Running online tests for VM: {0}".format(self.name)
+        for t in self.online_tests:
             res = self.client.exec_command(t.cmd, t.timeout)
             print t.format_result(res)
         print "-"*80

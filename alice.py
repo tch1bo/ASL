@@ -1,27 +1,13 @@
-from vm import VM, VMTest, stderr_predicate_factory, stdout_predicate_factory
+from vm import VM, VMTest, VMTestPackageInstalled
+from vm import stderr_predicate_factory, stdout_predicate_factory
 
 ALICE_PORT = 2224
 ALICE_LOGIN = "alice"
 ALICE_PASSWORD = "alice"
-ALICE_TESTS = [
+ALICE_ONLINE_TESTS = [
         VMTest(
             "Hello world test",
             "echo -n 'Hello World!'",
-        ),
-        VMTest(
-            "Page 37: xhost installed test",
-            "xhost",
-            predicate=stderr_predicate_factory("xhost", "unable", "display")
-        ),
-        VMTest(
-            "Page 37: xclock installed test",
-            "xclock",
-            predicate=stderr_predicate_factory("Error", "display")
-        ),
-        VMTest(
-            "Page 43: iptables installed test",
-            "iptables --help",
-            predicate=stdout_predicate_factory("Usage", "iptables")
         ),
 ]
 
@@ -32,8 +18,15 @@ ALICE_MANUAL_TESTS = [
         "telnetd page 41",
 ]
 
+ALICE_PACKAGES = ["xclock", "xhost", "iptables",
+]
+ALICE_INSTALLATION_TESTS = []
+for p in ALICE_PACKAGES:
+    ALICE_INSTALLATION_TESTS += [VMTestPackageInstalled(p)]
+
 class Alice(VM):
     def __init__(self):
-        VM.__init__(self, "alice", ALICE_PORT, ALICE_LOGIN, ALICE_PASSWORD, 
-                ALICE_TESTS)
+        VM.__init__(self, "alice", ALICE_PORT, ALICE_LOGIN, ALICE_PASSWORD)
         self.manual_tests = ALICE_MANUAL_TESTS
+        self.online_tests = ALICE_ONLINE_TESTS
+        self.installation_tests = ALICE_INSTALLATION_TESTS
