@@ -5,14 +5,14 @@ from ssh import SSHClient
 def default_test_predicate(out, err):
     return (len(err) == 0)
 
-""" Factory that build predicates that check that err stream contains all 
+""" Factory that build predicates that check that err stream contains all
 strings in given list."""
 def stderr_predicate_factory(*strings):
     def inner(out, err):
         return reduce(lambda a, b: a and (b in err), strings, True)
     return inner
 
-""" Factory that build predicates that check that out stream contains all 
+""" Factory that builds predicates that check that out stream contains all
 strings in given list."""
 def stdout_predicate_factory(*strings):
     def inner(out, err):
@@ -49,11 +49,23 @@ class VMTest:
             \rCmd    = "{2}"
             \rError  = "{3}"
             \rStdout = "{4}"
-            \rStderr = "{5}" 
-            """.format(color_red("FAILED"), self.name, self.cmd, res.error, 
+            \rStderr = "{5}"
+            """.format(color_red("FAILED"), self.name, self.cmd, res.error,
                     res.stdout, res.stderr)
         return output
 
+class VMTestPackageInstalled(VMTest):
+    """ Checks if a package is installed on the VM.
+
+    Attributes:
+        package(string): the name of the package
+    """
+
+    def __init__(self, package):
+        name = package + "installed"
+        cmd = package
+        predicate = lambda o,e: "command not found" not in e
+        VMTest.__init__(self, name, cmd, predicate=predicate)
 
 class VM:
     def __init__(self, name, port, username, password, tests):
