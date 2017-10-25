@@ -65,7 +65,8 @@ class VMTestPackageInstalled(VMTest):
         self.package = package
         name = package + " installed"
         predicate = lambda o,e: "command not found" not in e
-        VMTest.__init__(self, name, cmd=package, predicate=predicate)
+        cmd = package
+        VMTest.__init__(self, name, cmd=cmd, predicate=predicate)
 
 
     def format_result(self, res):
@@ -74,6 +75,30 @@ class VMTestPackageInstalled(VMTest):
         else:
             output = "[ {0} ] {1} not installed".format(
                     color_red("FAILED"), self.package)
+        return output
+
+class VMTestLocateFile(VMTest):
+    """ Checks if a file is present on the VM.
+
+    Attributes:
+        path(string): the path to the file
+    """
+
+    def __init__(self, path):
+        self.path = path
+        name = path + " present"
+        predicate = lambda o,e: path.replace("\\", "") in o and len(e) == 0
+        cmd = "ls " + path
+        VMTest.__init__(self, name, cmd=cmd, predicate=predicate)
+
+
+    def format_result(self, res):
+        if self.is_success(res):
+            output = "[ {0} ] {1}".format(color_green('PASSED'), self.name)
+        else:
+            output = "[ {0} ] {1} not found".format(
+                    color_red("FAILED"), self.path)
+            output += "\n{0}***{1}\n".format(res.stdout, res.stderr)
         return output
 
 class VM:
@@ -106,4 +131,10 @@ class VM:
             res = self.client.exec_command(t.cmd, t.timeout)
             print t.format_result(res)
         print "-"*80
+
+""" Sets up a list of installation tests using the provided list of required
+packages and list of required files."""
+def create_installation_tests(packages, files):
+    return map(lambda p: VMTestPackageInstalled(p), packages) +\
+            map(lambda f: VMTestLocateFile(f), files)
 

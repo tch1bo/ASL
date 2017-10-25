@@ -1,5 +1,6 @@
 from vm import VM, VMTest, VMTestPackageInstalled
 from vm import stderr_predicate_factory, stdout_predicate_factory
+from vm import create_installation_tests
 
 ALICE_PORT = 2224
 ALICE_LOGIN = "alice"
@@ -16,13 +17,14 @@ ALICE_MANUAL_TESTS = [
         "recon page 38",
         "recon page 41",
         "telnetd page 41",
+        "ssh exercise page 50",
 ]
 
-ALICE_PACKAGES = ["xclock", "xhost", "iptables",
-]
-ALICE_INSTALLATION_TESTS = []
-for p in ALICE_PACKAGES:
-    ALICE_INSTALLATION_TESTS += [VMTestPackageInstalled(p)]
+ALICE_PACKAGES = ["xclock", "xhost", "iptables", "ssh", "ssh-keygen -h",
+        "ssh-agent -h",]
+ALICE_FILES = []
+ALICE_INSTALLATION_TESTS = create_installation_tests(ALICE_PACKAGES,
+        ALICE_FILES)
 
 class Alice(VM):
     def __init__(self):

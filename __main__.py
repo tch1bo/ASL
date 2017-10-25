@@ -1,12 +1,15 @@
 from alice import Alice
+from bob import Bob
 from mallet import Mallet
 
 if __name__ == "__main__":
     alice = Alice()
     mallet = Mallet()
+    bob = Bob()
     vms = [
             alice,
             mallet,
+            bob,
             ]
     for vm in vms:
         vm.run_tests()

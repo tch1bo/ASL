@@ -1,5 +1,6 @@
 from vm import VM, VMTest, VMTestPackageInstalled
 from vm import stderr_predicate_factory, stdout_predicate_factory
+from vm import create_installation_tests
 from ssh import sudo_cmd
 
 MALLET_PORT = 2226
@@ -55,20 +56,15 @@ MALLET_MANUAL_TESTS = [
         "echod_exploit.py page 36",
         "xtv, xwatchwin, xlsclients, xkill, vinagre page 37",
         "exercise page 43",
+        "telnet sniff page 48",
 ]
 
 MALLET_PACKAGES = ["tcpdump", "nmap", "telnet -h", "nc", "openvas-client",
         "msfconsole -h", "xtv", "xwatchwin", "xlsclients", "xkill", "vinagre",
-]
-MALLET_INSTALLATION_TESTS = [
-        VMTest(
-            "echod_exploit.py",
-            "ls ~/Exploits/Echo\ Daemon",
-            predicate=lambda o, e: "echod_exploit.py" in o and len(e) == 0,
-        ),
-]
-for p in MALLET_PACKAGES:
-    MALLET_INSTALLATION_TESTS += [VMTestPackageInstalled(p)]
+        "dsniff -h", "rsh -h", ]
+MALLET_FILES = ["~/Exploits/Echo\ Daemon/echod_exploit.py", ]
+MALLET_INSTALLATION_TESTS = create_installation_tests(MALLET_PACKAGES,
+        MALLET_FILES)
 
 class Mallet(VM):
     def __init__(self):

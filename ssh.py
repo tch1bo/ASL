@@ -4,7 +4,7 @@ import socket
 INIT_ERR_MSG = """\
 An exception occured when connecting to "localhost:{0}" with username="{1}"
 and password="{2}". Exception message:"{3}".\
-""" 
+"""
 
 # wraps a command to execute with sudo
 def sudo_cmd(cmd):
@@ -24,14 +24,14 @@ class ExecResult:
         self.error = error
         self.stdout = stdout
         self.stderr = stderr
-    
+
     def __str__(self):
         return 'Success={0} error="{1}" stdout="{2}" stderr="{3}"'.format(
                 self.success, self.error, self.stdout, self.stderr)
 
 class SSHClient:
     client = None
-    
+
     def __init__(self, port, username, password):
         self.port = port
         self.username = username
